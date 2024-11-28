@@ -51,20 +51,46 @@ class TrainingLogApp:
         self.view_button = ttk.Button(self.root, text="Просмотреть записи", command=self.view_records)
         self.view_button.grid(column=0, row=4, columnspan=2, pady=10)
 
-        self.s = ttk.Label(self.root, text="Начало периода:")
-        self.s.grid(column=0, row=5, sticky=tk.W, padx=5, pady=5)
+        self.beginning_period = ttk.Label(self.root, text="Начало периода:")
+        self.beginning_period.grid(column=0, row=5, sticky=tk.W, padx=5, pady=5)
 
-        self.a = ttk.Entry(self.root)
-        self.a.grid(column=1, row=5, sticky=tk.EW, padx=5, pady=5)
+        self.beginning_period_value = ttk.Entry(self.root)
+        self.beginning_period_value.grid(column=1, row=5, sticky=tk.EW, padx=5, pady=5)
 
-        self.s2 = ttk.Label(self.root, text="Окончание периода:")
-        self.s2.grid(column=0, row=6, sticky=tk.W, padx=5, pady=5)
+        self.end_period = ttk.Label(self.root, text="Окончание периода:")
+        self.end_period.grid(column=0, row=6, sticky=tk.W, padx=5, pady=5)
 
-        self.a2 = ttk.Entry(self.root)
-        self.a2.grid(column=1, row=6, sticky=tk.EW, padx=5, pady=5)
+        self.end_period_value = ttk.Entry(self.root)
+        self.end_period_value.grid(column=1, row=6, sticky=tk.EW, padx=5, pady=5)
 
-        self.v = ttk.Button(self.root, text="Вывести период", command=self.view_records1)
-        self.v.grid(column=2, row=5, columnspan=2)
+        self.period = ttk.Button(self.root, text="Вывести период", command=self.view_records1)
+        self.period.grid(column=2, row=5, columnspan=2)
+
+        # Определяем путь к JSON-файлу
+        json_path = 'training_log.json'
+
+        # Создаем пустой список для хранения значений
+        values_list = []
+
+        # Читаем JSON-файл
+        with open(json_path, 'r', encoding='utf-8') as file:
+            # Загружаем данные из файла в словарь
+            data = json.load(file)
+            # print(data)
+        for i in data:
+            i.keys()
+            # print(i['exercise'])
+            values_list.append(i['exercise'])
+        values_list_set = set(values_list)
+        values_list_set = ["Без сортировки"] + list(values_list_set)
+        # options_list = self.options_list  # Создание списка значений толщины
+        self.value_inside = tk.StringVar()  # Переменная для отслеживания выбранного варианта в OptionMenu
+        self.value_inside.set("Без сортировки")  # Установка значения по умолчанию для переменной
+        # Создание виджета OptionMenu и передача ему созданного списка опций и переменной
+        self.exercise = ttk.Label(self.root, text="Выбрать упражнение:")
+        self.exercise.grid(column=0, row=7, sticky=tk.W, padx=5, pady=5)
+        self.specific_exercise = tk.OptionMenu(self.root, self.value_inside, *values_list_set)
+        self.specific_exercise.grid(column=1, row=7, columnspan=1)
 
     def view_records1(self):
         data = load_data()
@@ -76,14 +102,19 @@ class TrainingLogApp:
         tree.heading('Упражнение', text="Упражнение")
         tree.heading('Вес', text="Вес")
         tree.heading('Повторения', text="Повторения")
-
-        dt1 = datetime.strptime(self.a.get(), '%Y-%m-%d %H:%M:%S')
-        dt2 = datetime.strptime(self.a2.get(), '%Y-%m-%d %H:%M:%S')
+        try:
+            dt1 = datetime.strptime(self.beginning_period_value.get(), '%Y-%m-%d %H:%M:%S')
+            dt2 = datetime.strptime(self.end_period_value.get(), '%Y-%m-%d %H:%M:%S')
+        except:
+            dt1 = datetime.strptime('2020-10-28 00:00:00', '%Y-%m-%d %H:%M:%S')
+            dt2 = datetime.strptime('2023-10-30 00:00:00', '%Y-%m-%d %H:%M:%S')
         for entry in data:
+
             dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
             if dt3 > dt1 and dt3 < dt2:
                 tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
         tree.pack(expand=True, fill=tk.BOTH)
+
 
     def add_entry(self):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -124,11 +155,13 @@ class TrainingLogApp:
         tree.heading('Вес', text="Вес")
         tree.heading('Повторения', text="Повторения")
 
-
-
         for entry in data:
-            tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
-            print(type(entry['date']))
+            if self.value_inside.get() == 'Без сортировки':
+                tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+            else:
+                if entry['exercise'] == self.value_inside.get():
+                    tree.insert('', tk.END,
+                                values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
         tree.pack(expand=True, fill=tk.BOTH)
 
 def main():

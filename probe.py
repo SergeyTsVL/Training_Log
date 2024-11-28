@@ -1,20 +1,29 @@
-import datetime
+import json
 
-date1 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-date2 = '2023-05-15 14:30:00'
+# Определяем путь к JSON-файлу
+json_path = 'training_log.json'
 
-dt1 = datetime.datetime.strptime(date1, '%Y-%m-%d %H:%M:%S')
-dt2 = datetime.datetime.strptime(date2, '%Y-%m-%d %H:%M:%S')
+# Создаем пустой список для хранения значений
+values_list = []
 
-if dt1 > dt2:
-    print(dt1)
-    print(dt2)
-    print("date1 больше date2")
-elif dt1 < dt2:
-    print(dt1)
-    print(dt2)
-    print("date1 меньше date2")
-else:
-    print(dt1)
-    print(dt2)
-    print("date1 равно date2")
+# Читаем JSON-файл
+with open(json_path, 'r', encoding='utf-8') as file:
+    # Загружаем данные из файла в словарь
+    data = json.load(file)
+    # print(data)
+for i in data:
+    i.keys()
+    # print(i['exercise'])
+    values_list.append(i['exercise'])
+values_list_set = set(values_list)
+print(list(values_list_set))
+# Проходим циклом по ключам и значениям в словаре
+# for key, value in data.items():
+#     # Здесь вы можете добавить условие для выбора значений
+#     if isinstance(value, list):  # Если значение - список
+#         values_list.extend(value)
+#     elif isinstance(value, dict):  # Если значение - словарь
+#         values_list.append(key)  # Добавляем ключ (или другое условие)
+#
+# # Выводим результат
+# print(values_list)
