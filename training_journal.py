@@ -1,7 +1,9 @@
+import csv
 import tkinter as tk
-from tkinter import ttk, Toplevel, messagebox
+from tkinter import ttk, Toplevel, messagebox, filedialog
 import json
 from datetime import datetime
+import pandas as pd
 
 # Файл для сохранения данных
 data_file = 'training_log.json'
@@ -66,6 +68,12 @@ class TrainingLogApp:
         self.period = ttk.Button(self.root, text="Вывести период", command=self.view_records1)
         self.period.grid(column=2, row=5, columnspan=2)
 
+        self.enter_csv = ttk.Button(self.root, text="Экспорт csv", command=self.save_csv_file)
+        self.enter_csv.grid(column=0, row=8)
+
+        self.importing_csv = ttk.Button(self.root, text="Импорт csv", command=self.importing_csv_file)
+        self.importing_csv.grid(column=1, row=8)
+
         # Определяем путь к JSON-файлу
         json_path = 'training_log.json'
 
@@ -95,7 +103,6 @@ class TrainingLogApp:
     def view_records1(self):
         data = load_data()
         records_window = Toplevel(self.root)
-        # records_window1 = Toplevel(self.root)
         records_window.title("Записи тренировок")
         tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
         tree.heading('Дата', text="Дата")
@@ -109,7 +116,6 @@ class TrainingLogApp:
             dt1 = datetime.strptime('2020-10-28 00:00:00', '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime('2023-10-30 00:00:00', '%Y-%m-%d %H:%M:%S')
         for entry in data:
-
             dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
             if dt3 > dt1 and dt3 < dt2:
                 tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
@@ -144,25 +150,58 @@ class TrainingLogApp:
         messagebox.showinfo("Успешно", "Запись успешно добавлена!")
 
     def view_records(self):
-        data = load_data()
+        self.data = load_data()
         records_window = Toplevel(self.root)
         # records_window1 = Toplevel(self.root)
         records_window.title("Записи тренировок")
 
-        tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
-        tree.heading('Дата', text="Дата")
-        tree.heading('Упражнение', text="Упражнение")
-        tree.heading('Вес', text="Вес")
-        tree.heading('Повторения', text="Повторения")
+        self.tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
+        self.tree.heading('Дата', text="Дата")
+        self.tree.heading('Упражнение', text="Упражнение")
+        self.tree.heading('Вес', text="Вес")
+        self.tree.heading('Повторения', text="Повторения")
 
-        for entry in data:
+        for entry in self.data:
             if self.value_inside.get() == 'Без сортировки':
-                tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+                self.tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
             else:
                 if entry['exercise'] == self.value_inside.get():
-                    tree.insert('', tk.END,
+                    self.tree.insert('', tk.END,
                                 values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
-        tree.pack(expand=True, fill=tk.BOTH)
+        self.tree.pack(expand=True, fill=tk.BOTH)
+
+    def importing_csv_file(self):
+        file_path = filedialog.askopenfilename(
+            title="Выберите файл для импорта",
+            filetypes=[('All Files', '*.*'), ("CSV files", "*.csv"), ("JSON files", "*.json")]
+        )
+        # Чтение CSV-файла
+        with open(file_path, 'r', newline='', encoding='utf-8') as csv_file:
+            reader = csv.DictReader(csv_file)
+        # Список для хранения данных
+            data = list(reader)
+        json_data = []
+        # Заполняем словарь данными из CSV
+        for row in data[1:]:  # Пропускаем заголовок
+            json_data.append(row)
+        # Запись данных в JSON-файл
+        with open('training_log.json', 'w', encoding='utf-8') as json_file:
+            json.dump(json_data, json_file, ensure_ascii=False, indent=4)
+
+    def save_csv_file(self):
+        filename = filedialog.asksaveasfilename(filetypes=[('CSV', '*.csv')])
+        with open('training_log.json', 'r') as json_file:
+            data = json.load(json_file)
+        # Открытие файла для записи CSV
+        with open(filename, 'w', newline='', encoding='utf-8') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
+            # Запись заголовков
+            writer.writeheader()
+            # Запись данных
+            for item in data:
+                writer.writerow(item)
+        messagebox.showinfo("Успешно", f"Создан файл - {filename}")
+
 
 def main():
     root = tk.Tk()
