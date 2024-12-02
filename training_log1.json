@@ -1,5 +1,11 @@
 [
     {
+        "date": "2024-10-28 06:06:24",
+        "exercise": "5",
+        "weight": "5",
+        "repetitions": "5"
+    },
+    {
         "date": "2024-11-29 03:43:51",
         "exercise": "1",
         "weight": "20",
@@ -34,12 +40,5 @@
         "exercise": "estrhnf",
         "weight": "5",
         "repetitions": "5"
-    },
-    {
-        "date": "2024-12-01 14:31:35",
-        "exercise": "estrhnf",
-        "weight": "5",
-        "repetitions": "5"
     }
-
 ]

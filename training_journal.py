@@ -1,9 +1,10 @@
 import csv
 import tkinter as tk
-from tkinter import ttk, Toplevel, messagebox, filedialog
+from tkinter import ttk, Toplevel, messagebox, filedialog, RIGHT, BOTTOM
 import json
 from datetime import datetime
 import pandas as pd
+from tkinter import *
 
 # Файл для сохранения данных
 data_file = 'training_log.json'
@@ -74,14 +75,11 @@ class TrainingLogApp:
         self.importing_csv = ttk.Button(self.root, text="Импорт csv", command=self.importing_csv_file)
         self.importing_csv.grid(column=1, row=8)
 
-        # Определяем путь к JSON-файлу
-        json_path = 'training_log.json'
-
         # Создаем пустой список для хранения значений
         values_list = []
 
         # Читаем JSON-файл
-        with open(json_path, 'r', encoding='utf-8') as file:
+        with open(data_file, 'r', encoding='utf-8') as file:
             # Загружаем данные из файла в словарь
             data = json.load(file)
             # print(data)
@@ -102,25 +100,62 @@ class TrainingLogApp:
 
     def view_records1(self):
         data = load_data()
+
+
         records_window = Toplevel(self.root)
         records_window.title("Записи тренировок")
+
+
         tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
         tree.heading('Дата', text="Дата")
         tree.heading('Упражнение', text="Упражнение")
         tree.heading('Вес', text="Вес")
         tree.heading('Повторения', text="Повторения")
+
+
+
         try:
             dt1 = datetime.strptime(self.beginning_period_value.get(), '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime(self.end_period_value.get(), '%Y-%m-%d %H:%M:%S')
         except:
             dt1 = datetime.strptime('2020-10-28 00:00:00', '%Y-%m-%d %H:%M:%S')
-            dt2 = datetime.strptime('2023-10-30 00:00:00', '%Y-%m-%d %H:%M:%S')
+            dt2 = datetime.strptime('2024-12-30 00:00:00', '%Y-%m-%d %H:%M:%S')
         for entry in data:
             dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
             if dt3 > dt1 and dt3 < dt2:
                 tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
-        tree.pack(expand=True, fill=tk.BOTH)
+        tree.grid(row=0, column=0)
 
+        playerdate = Label(records_window, text="Дата")
+        playerdate.grid(row=1, column=0, sticky=tk.W, padx=45, pady=5)
+        playerdate_entry = Entry(records_window)
+        playerdate_entry.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+
+        playerexercise = Label(records_window, text="Упражнение")
+        playerexercise.grid(row=1, column=0, sticky=tk.W, padx=160)
+        playerexercise_entry = Entry(records_window)
+        playerexercise_entry.grid(row=2, column=0, sticky=tk.W, padx=120)
+
+        playerweight = Label(records_window, text="Вес")
+        playerweight.grid(row=1, column=0, sticky=tk.W, padx=280)
+        playerweight_entry = Entry(records_window)
+        playerweight_entry.grid(row=2, column=0, sticky=tk.W, padx=240)
+        #
+        playerrepetitions = Label(records_window, text="Повторения")
+        playerrepetitions.grid(row=1, column=0, sticky=tk.W, padx=400)
+        playerrepetitions_entry = Entry(records_window)
+        playerrepetitions_entry.grid(row=2, column=0, sticky=tk.W, padx=360)
+
+        self.select_button = Button(records_window, text="Выбрать строку", command=self.select_record)
+        self.select_button.grid(row=3, column=0, sticky=tk.W, padx=5)
+
+        self.edit_button = Button(records_window, text="Сохранить изменения ", command=self.update_record)
+        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=120)
+    def select_record(self):
+        pass
+
+    def update_record(self):
+        pass
 
     def add_entry(self):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -152,7 +187,6 @@ class TrainingLogApp:
     def view_records(self):
         self.data = load_data()
         records_window = Toplevel(self.root)
-        # records_window1 = Toplevel(self.root)
         records_window.title("Записи тренировок")
 
         self.tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
@@ -160,6 +194,7 @@ class TrainingLogApp:
         self.tree.heading('Упражнение', text="Упражнение")
         self.tree.heading('Вес', text="Вес")
         self.tree.heading('Повторения', text="Повторения")
+        # self.tree.heading('123', text="Пов`тор")
 
         for entry in self.data:
             if self.value_inside.get() == 'Без сортировки':
