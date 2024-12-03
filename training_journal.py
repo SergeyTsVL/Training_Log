@@ -207,7 +207,7 @@ class TrainingLogApp:
         print(update_list)
 
     def delite_record(self):
-
+        selected = self.tree.focus()
 
         delite_list = []
         with open(data_file, 'r', encoding='utf-8') as file:
@@ -232,7 +232,7 @@ class TrainingLogApp:
             j += 1
         with open(data_file, 'w') as f:
             json.dump(delite_list, f, indent=4)
-        selected = self.tree.focus()
+
         self.tree.item(selected, text="", values=(self.playerdate_entry.get(), self.playerexercise_entry.get(),
                                                   self.playerweight_entry.get(), self.playerrepetitions_entry.get()))
         self.playerdate_entry.delete(0, END)
