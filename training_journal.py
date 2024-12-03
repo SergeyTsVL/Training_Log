@@ -118,8 +118,12 @@ class TrainingLogApp:
             dt1 = datetime.strptime(self.beginning_period_value.get(), '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime(self.end_period_value.get(), '%Y-%m-%d %H:%M:%S')
         except:
+            messagebox.showinfo("Так не пойдет!!!", ' Файл должен быть формата\n %Y-%m-%d %H:%M:%S '
+                                                    'по умолчанию:\n Начало периода: 2020-10-28 00:00:00'
+                                                    '\n Окончание периода: 2024-12-30 00:00:00')
             dt1 = datetime.strptime('2020-10-28 00:00:00', '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime('2024-12-30 00:00:00', '%Y-%m-%d %H:%M:%S')
+
         for entry in data:
             dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
             if dt3 > dt1 and dt3 < dt2:
@@ -138,9 +142,10 @@ class TrainingLogApp:
 
         self.playerweight = Label(records_window, text="Вес")
         self.playerweight.grid(row=1, column=0, sticky=tk.W, padx=280)
+
         self.playerweight_entry = Entry(records_window)
         self.playerweight_entry.grid(row=2, column=0, sticky=tk.W, padx=240)
-        #
+
         self.playerrepetitions = Label(records_window, text="Повторения")
         self.playerrepetitions.grid(row=1, column=0, sticky=tk.W, padx=400)
         self.playerrepetitions_entry = Entry(records_window)
@@ -178,7 +183,8 @@ class TrainingLogApp:
 
     def update_record(self):
         selected = self.tree.focus()
-
+        values = self.tree.item(selected, text="", values=(self.playerdate_entry.get(),
+                    self.playerexercise_entry.get(), self.playerweight_entry.get(), self.playerrepetitions_entry.get()))
         # save new data_file
         update_list = []
         with open(data_file, 'r', encoding='utf-8') as file:
@@ -187,7 +193,7 @@ class TrainingLogApp:
 
         j = 0
         for i in data:
-            if self.playerdate_entry.get() == i['date']:
+            if values[0] == i['date']:
                 update_list.append({
                     'date' : self.playerdate_entry.get(),
                     'exercise' : self.playerexercise_entry.get(),
@@ -243,8 +249,14 @@ class TrainingLogApp:
     def add_entry(self):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         exercise = self.exercise_entry.get()
-        weight = self.weight_entry.get()
-        repetitions = self.repetitions_entry.get()
+        try:
+            weight = int(self.weight_entry.get())
+        except:
+            messagebox.showerror("Ошибка при вводе 'ВЕС'", "Должны быть числа")
+        try:
+            repetitions = int(self.repetitions_entry.get())
+        except:
+            messagebox.showerror("Ошибка при вводе 'Повторения'", "Должны быть числа")
 
         if not (exercise and weight and repetitions):
             messagebox.showerror("Ошибка", "Все поля должны быть заполнены!")
@@ -277,7 +289,6 @@ class TrainingLogApp:
         self.tree.heading('Упражнение', text="Упражнение")
         self.tree.heading('Вес', text="Вес")
         self.tree.heading('Повторения', text="Повторения")
-        # self.tree.heading('123', text="Пов`тор")
 
         for entry in self.data:
             if self.value_inside.get() == 'Без сортировки':
