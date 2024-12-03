@@ -106,11 +106,11 @@ class TrainingLogApp:
         records_window.title("Записи тренировок")
 
 
-        tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
-        tree.heading('Дата', text="Дата")
-        tree.heading('Упражнение', text="Упражнение")
-        tree.heading('Вес', text="Вес")
-        tree.heading('Повторения', text="Повторения")
+        self.tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
+        self.tree.heading('Дата', text="Дата")
+        self.tree.heading('Упражнение', text="Упражнение")
+        self.tree.heading('Вес', text="Вес")
+        self.tree.heading('Повторения', text="Повторения")
 
 
 
@@ -123,39 +123,123 @@ class TrainingLogApp:
         for entry in data:
             dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
             if dt3 > dt1 and dt3 < dt2:
-                tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
-        tree.grid(row=0, column=0)
+                self.tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+        self.tree.grid(row=0, column=0)
 
-        playerdate = Label(records_window, text="Дата")
-        playerdate.grid(row=1, column=0, sticky=tk.W, padx=45, pady=5)
-        playerdate_entry = Entry(records_window)
-        playerdate_entry.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        self.playerdate = Label(records_window, text="Дата")
+        self.playerdate.grid(row=1, column=0, sticky=tk.W, padx=45, pady=5)
+        self.playerdate_entry = Entry(records_window)
+        self.playerdate_entry.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
 
-        playerexercise = Label(records_window, text="Упражнение")
-        playerexercise.grid(row=1, column=0, sticky=tk.W, padx=160)
-        playerexercise_entry = Entry(records_window)
-        playerexercise_entry.grid(row=2, column=0, sticky=tk.W, padx=120)
+        self.playerexercise = Label(records_window, text="Упражнение")
+        self.playerexercise.grid(row=1, column=0, sticky=tk.W, padx=160)
+        self.playerexercise_entry = Entry(records_window)
+        self.playerexercise_entry.grid(row=2, column=0, sticky=tk.W, padx=120)
 
-        playerweight = Label(records_window, text="Вес")
-        playerweight.grid(row=1, column=0, sticky=tk.W, padx=280)
-        playerweight_entry = Entry(records_window)
-        playerweight_entry.grid(row=2, column=0, sticky=tk.W, padx=240)
+        self.playerweight = Label(records_window, text="Вес")
+        self.playerweight.grid(row=1, column=0, sticky=tk.W, padx=280)
+        self.playerweight_entry = Entry(records_window)
+        self.playerweight_entry.grid(row=2, column=0, sticky=tk.W, padx=240)
         #
-        playerrepetitions = Label(records_window, text="Повторения")
-        playerrepetitions.grid(row=1, column=0, sticky=tk.W, padx=400)
-        playerrepetitions_entry = Entry(records_window)
-        playerrepetitions_entry.grid(row=2, column=0, sticky=tk.W, padx=360)
+        self.playerrepetitions = Label(records_window, text="Повторения")
+        self.playerrepetitions.grid(row=1, column=0, sticky=tk.W, padx=400)
+        self.playerrepetitions_entry = Entry(records_window)
+        self.playerrepetitions_entry.grid(row=2, column=0, sticky=tk.W, padx=360)
 
         self.select_button = Button(records_window, text="Выбрать строку", command=self.select_record)
         self.select_button.grid(row=3, column=0, sticky=tk.W, padx=5)
 
-        self.edit_button = Button(records_window, text="Сохранить изменения ", command=self.update_record)
+        self.edit_button = Button(records_window, text="Сохранить изменения", command=self.update_record)
         self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=120)
+
+        self.edit_button = Button(records_window, text="Удалить запись", command=self.delite_record)
+        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=280)
+
     def select_record(self):
-        pass
+        # clear entry boxes
+        self.playerdate_entry.delete(0, END)
+        self.playerexercise_entry.delete(0, END)
+        self.playerweight_entry.delete(0, END)
+        self.playerrepetitions_entry.delete(0, END)
+        # grab record
+        selected = self.tree.focus()
+        # if selected:
+            # grab record values
+        values = self.tree.item(selected, 'values')
+            # temp_label.config(text=selected)
+
+        # output to entry boxes
+        self.playerdate_entry.insert(0, values[0])
+        self.playerexercise_entry.insert(0, values[1])
+        self.playerweight_entry.insert(0, values[2])
+        self.playerrepetitions_entry.insert(0, values[3])
+
+        # pass
 
     def update_record(self):
-        pass
+        selected = self.tree.focus()
+        # save new data_file
+        update_list = []
+        with open(data_file, 'r', encoding='utf-8') as file:
+            # Загружаем данные из файла в словарь
+            data = json.load(file)
+            print(data)
+        j = 0
+        for i in data:
+            if self.playerdate_entry.get() == i['date']:
+                update_list.append({
+                    'date' : self.playerdate_entry.get(),
+                    'exercise' : self.playerexercise_entry.get(),
+                    'weight' : self.playerweight_entry.get(),
+                    'repetitions' : self.playerrepetitions_entry.get()
+                })
+
+            else:
+                update_list.append({
+                    'date' : data[j]['date'],
+                    'exercise' : data[j]['exercise'],
+                    'weight' :data[j]['weight'],
+                    'repetitions' : data[j]['repetitions']
+                })
+            j += 1
+        with open(data_file, 'w') as f:
+            json.dump(update_list, f, indent=4)
+        print(update_list)
+
+    def delite_record(self):
+
+
+        delite_list = []
+        with open(data_file, 'r', encoding='utf-8') as file:
+            # Загружаем данные из файла в словарь
+            data = json.load(file)
+            # print(data)
+        j = 0
+        for i in data:
+            delite_list.append({
+                'date': data[j]['date'],
+                'exercise': data[j]['exercise'],
+                'weight': data[j]['weight'],
+                'repetitions': data[j]['repetitions']
+            })
+            print(delite_list)
+            print(i['date'])
+            print(self.playerdate_entry.get())
+            if self.playerdate_entry.get() == i['date']:
+                print('1111111111111')
+                del delite_list[j]
+                print('***********')
+            j += 1
+        with open(data_file, 'w') as f:
+            json.dump(delite_list, f, indent=4)
+        selected = self.tree.focus()
+        self.tree.item(selected, text="", values=(self.playerdate_entry.get(), self.playerexercise_entry.get(),
+                                                  self.playerweight_entry.get(), self.playerrepetitions_entry.get()))
+        self.playerdate_entry.delete(0, END)
+        self.playerexercise_entry.delete(0, END)
+        self.playerweight_entry.delete(0, END)
+        self.playerrepetitions_entry.delete(0, END)
+
 
     def add_entry(self):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

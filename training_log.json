@@ -1,15 +1,15 @@
 [
     {
+        "date": "2024-10-28 06:06:24",
+        "exercise": "5",
+        "weight": "5",
+        "repetitions": "5"
+    },
+    {
         "date": "2024-11-29 03:43:51",
         "exercise": "1",
         "weight": "20",
         "repetitions": "vyhj"
-    },
-    {
-        "date": "2024-11-29 03:44:03",
-        "exercise": "dfghgcvh",
-        "weight": "12",
-        "repetitions": "642"
     },
     {
         "date": "2024-11-29 03:44:18",
@@ -19,27 +19,8 @@
     },
     {
         "date": "2024-11-29 03:44:27",
-        "exercise": "q",
+        "exercise": "55555555555",
         "weight": "54",
         "repetitions": "164"
-    },
-    {
-        "date": "2024-11-29 03:44:34",
-        "exercise": "q",
-        "weight": "56",
-        "repetitions": "44"
-    },
-    {
-        "date": "2024-12-01 14:31:35",
-        "exercise": "estrhnf",
-        "weight": "5",
-        "repetitions": "5"
-    },
-    {
-        "date": "2024-12-01 14:31:35",
-        "exercise": "estrhnf",
-        "weight": "5",
-        "repetitions": "5"
     }
-
 ]
