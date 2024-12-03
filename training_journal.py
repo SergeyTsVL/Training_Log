@@ -178,12 +178,13 @@ class TrainingLogApp:
 
     def update_record(self):
         selected = self.tree.focus()
+
         # save new data_file
         update_list = []
         with open(data_file, 'r', encoding='utf-8') as file:
             # Загружаем данные из файла в словарь
             data = json.load(file)
-            print(data)
+
         j = 0
         for i in data:
             if self.playerdate_entry.get() == i['date']:
@@ -204,11 +205,12 @@ class TrainingLogApp:
             j += 1
         with open(data_file, 'w') as f:
             json.dump(update_list, f, indent=4)
-        print(update_list)
+
 
     def delite_record(self):
         selected = self.tree.focus()
-
+        values = self.tree.item(selected, "values")
+        print(values[0])
         delite_list = []
         with open(data_file, 'r', encoding='utf-8') as file:
             # Загружаем данные из файла в словарь
@@ -222,10 +224,7 @@ class TrainingLogApp:
                 'weight': data[j]['weight'],
                 'repetitions': data[j]['repetitions']
             })
-            print(delite_list)
-            print(i['date'])
-            print(self.playerdate_entry.get())
-            if self.playerdate_entry.get() == i['date']:
+            if values[0] == i['date']:
                 print('1111111111111')
                 del delite_list[j]
                 print('***********')
