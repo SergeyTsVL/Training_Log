@@ -12,14 +12,14 @@ data_file = 'training_log.json'
 def load_data():
     """Загрузка данных о тренировках из файла."""
     try:
-        with open(data_file, 'r') as file:
+        with open(data_file, 'r', encoding='utf-8') as file:
             return json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
 def save_data(data):
     """Сохранение данных о тренировках в файл."""
-    with open(data_file, 'w') as file:
+    with open(data_file, 'w', encoding='utf-8') as file:
         json.dump(data, file, indent=4)
 
 class TrainingLogApp:
@@ -112,7 +112,9 @@ class TrainingLogApp:
         self.tree.heading('Вес', text="Вес")
         self.tree.heading('Повторения', text="Повторения")
 
-
+        game_scroll = Scrollbar(records_window)
+        current_columns = game_scroll.grid_size()[0]
+        game_scroll.grid(row=0, column=current_columns + 1, sticky="ns")
 
         try:
             dt1 = datetime.strptime(self.beginning_period_value.get(), '%Y-%m-%d %H:%M:%S')
@@ -183,8 +185,9 @@ class TrainingLogApp:
 
     def update_record(self):
         selected = self.tree.focus()
-        values = self.tree.item(selected, text="", values=(self.playerdate_entry.get(),
-                    self.playerexercise_entry.get(), self.playerweight_entry.get(), self.playerrepetitions_entry.get()))
+        values_record = self.tree.item(selected, text="",
+                                       values=(self.playerdate_entry.get(), self.playerexercise_entry.get(),
+                                               self.playerweight_entry.get(), self.playerrepetitions_entry.get()))
         # save new data_file
         update_list = []
         with open(data_file, 'r', encoding='utf-8') as file:
@@ -193,23 +196,23 @@ class TrainingLogApp:
 
         j = 0
         for i in data:
-            if values[0] == i['date']:
+            if self.playerdate_entry.get() == i['date']:
                 update_list.append({
-                    'date' : self.playerdate_entry.get(),
-                    'exercise' : self.playerexercise_entry.get(),
-                    'weight' : self.playerweight_entry.get(),
-                    'repetitions' : self.playerrepetitions_entry.get()
+                    'date': self.playerdate_entry.get(),
+                    'exercise': self.playerexercise_entry.get(),
+                    'weight': self.playerweight_entry.get(),
+                    'repetitions': self.playerrepetitions_entry.get()
                 })
 
             else:
                 update_list.append({
-                    'date' : data[j]['date'],
-                    'exercise' : data[j]['exercise'],
-                    'weight' :data[j]['weight'],
-                    'repetitions' : data[j]['repetitions']
+                    'date': data[j]['date'],
+                    'exercise': data[j]['exercise'],
+                    'weight': data[j]['weight'],
+                    'repetitions': data[j]['repetitions']
                 })
             j += 1
-        with open(data_file, 'w') as f:
+        with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(update_list, f, indent=4)
 
 
@@ -235,7 +238,7 @@ class TrainingLogApp:
                 del delite_list[j]
                 print('***********')
             j += 1
-        with open(data_file, 'w') as f:
+        with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(delite_list, f, indent=4)
 
         self.tree.item(selected, text="", values=(self.playerdate_entry.get(), self.playerexercise_entry.get(),
@@ -297,7 +300,41 @@ class TrainingLogApp:
                 if entry['exercise'] == self.value_inside.get():
                     self.tree.insert('', tk.END,
                                 values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
-        self.tree.pack(expand=True, fill=tk.BOTH)
+        self.tree.grid(row=0, column=0)
+
+        game_scroll = Scrollbar(records_window)
+        current_columns = game_scroll.grid_size()[0]
+        game_scroll.grid(row=0, column=current_columns + 1, sticky="ns")
+
+        self.playerdate = Label(records_window, text="Дата")
+        self.playerdate.grid(row=1, column=0, sticky=tk.W, padx=45, pady=5)
+        self.playerdate_entry = Entry(records_window)
+        self.playerdate_entry.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+
+        self.playerexercise = Label(records_window, text="Упражнение")
+        self.playerexercise.grid(row=1, column=0, sticky=tk.W, padx=160)
+        self.playerexercise_entry = Entry(records_window)
+        self.playerexercise_entry.grid(row=2, column=0, sticky=tk.W, padx=120)
+
+        self.playerweight = Label(records_window, text="Вес")
+        self.playerweight.grid(row=1, column=0, sticky=tk.W, padx=280)
+
+        self.playerweight_entry = Entry(records_window)
+        self.playerweight_entry.grid(row=2, column=0, sticky=tk.W, padx=240)
+
+        self.playerrepetitions = Label(records_window, text="Повторения")
+        self.playerrepetitions.grid(row=1, column=0, sticky=tk.W, padx=400)
+        self.playerrepetitions_entry = Entry(records_window)
+        self.playerrepetitions_entry.grid(row=2, column=0, sticky=tk.W, padx=360)
+
+        self.select_button = Button(records_window, text="Выбрать строку", command=self.select_record)
+        self.select_button.grid(row=3, column=0, sticky=tk.W, padx=5)
+
+        self.edit_button = Button(records_window, text="Сохранить изменения", command=self.update_record)
+        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=120)
+
+        self.edit_button = Button(records_window, text="Удалить запись", command=self.delite_record)
+        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=280)
 
     def importing_csv_file(self):
         file_path = filedialog.askopenfilename(
@@ -317,9 +354,11 @@ class TrainingLogApp:
         with open('training_log.json', 'w', encoding='utf-8') as json_file:
             json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
+
+
     def save_csv_file(self):
         filename = filedialog.asksaveasfilename(filetypes=[('CSV', '*.csv')])
-        with open('training_log.json', 'r') as json_file:
+        with open('training_log.json', 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
         # Открытие файла для записи CSV
         with open(filename, 'w', newline='', encoding='utf-8') as csv_file:
