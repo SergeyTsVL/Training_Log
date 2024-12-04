@@ -20,7 +20,7 @@ def load_data():
 def save_data(data):
     """Сохранение данных о тренировках в файл."""
     with open(data_file, 'w', encoding='utf-8') as file:
-        json.dump(data, file, indent=4)
+        json.dump(data, file, indent=4, ensure_ascii=False)
 
 class TrainingLogApp:
     def __init__(self, root):
