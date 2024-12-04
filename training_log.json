@@ -1,97 +1,97 @@
 [
     {
         "date": "2024-11-29 03:44:03",
-        "exercise": "Подтягивания",
+        "exercise": "\u041f\u043e\u0434\u0442\u044f\u0433\u0438\u0432\u0430\u043d\u0438\u044f",
         "weight": "5",
         "repetitions": "25"
     },
     {
         "date": "2024-11-29 03:44:18",
-        "exercise": "Приседания",
+        "exercise": "\u041f\u0440\u0438\u0441\u0435\u0434\u0430\u043d\u0438\u044f",
         "weight": "5",
         "repetitions": "30"
     },
     {
         "date": "2024-11-29 03:44:27",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": "5",
         "repetitions": "20"
     },
     {
         "date": "2024-11-29 03:44:34",
-        "exercise": "Жим штанги от груди",
+        "exercise": "\u0416\u0438\u043c \u0448\u0442\u0430\u043d\u0433\u0438 \u043e\u0442 \u0433\u0440\u0443\u0434\u0438",
         "weight": "80",
         "repetitions": "12"
     },
     {
         "date": "2024-12-04 14:38:17",
-        "exercise": "Подъем туловища, пресс",
+        "exercise": "\u041f\u043e\u0434\u044a\u0435\u043c \u0442\u0443\u043b\u043e\u0432\u0438\u0449\u0430, \u043f\u0440\u0435\u0441\u0441",
         "weight": 5,
         "repetitions": 20
     },
     {
         "date": "2024-12-04 14:38:57",
-        "exercise": "Тест купера",
+        "exercise": "\u0422\u0435\u0441\u0442 \u043a\u0443\u043f\u0435\u0440\u0430",
         "weight": 5,
         "repetitions": 5
     },
     {
         "date": "2024-12-04 14:40:25",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": 10,
         "repetitions": 20
     },
     {
         "date": "2024-12-04 14:40:52",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": 10,
         "repetitions": 30
     },
     {
         "date": "2024-12-04 14:41:05",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": "7",
         "repetitions": "30"
     },
     {
         "date": "2024-12-04 14:41:21",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": 10,
         "repetitions": 40
     },
     {
         "date": "2024-12-04 14:41:33",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": 15,
         "repetitions": 15
     },
     {
         "date": "2024-12-04 14:44:00",
-        "exercise": "Подъем туловища, пресс",
+        "exercise": "\u041f\u043e\u0434\u044a\u0435\u043c \u0442\u0443\u043b\u043e\u0432\u0438\u0449\u0430, \u043f\u0440\u0435\u0441\u0441",
         "weight": 5,
         "repetitions": 30
     },
     {
         "date": "2024-12-04 14:45:00",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": 5,
         "repetitions": 40
     },
     {
         "date": "2024-12-04 14:46:43",
-        "exercise": "Отжимания",
+        "exercise": "\u041e\u0442\u0436\u0438\u043c\u0430\u043d\u0438\u044f",
         "weight": 1,
         "repetitions": 50
     },
     {
         "date": "2024-12-04 14:47:30",
-        "exercise": "Приседания",
+        "exercise": "\u041f\u0440\u0438\u0441\u0435\u0434\u0430\u043d\u0438\u044f",
         "weight": 5,
         "repetitions": 60
     },
     {
         "date": "2024-12-04 16:57:38",
-        "exercise": "Приседания",
+        "exercise": "\u041f\u0440\u0438\u0441\u0435\u0434\u0430\u043d\u0438\u044f",
         "weight": 5,
         "repetitions": 50
     }

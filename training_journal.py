@@ -1,10 +1,11 @@
 import csv
 import tkinter as tk
+from textwrap import wrap
 from tkinter import ttk, Toplevel, messagebox, filedialog, RIGHT, BOTTOM
 import json
 from datetime import datetime
-import pandas as pd
 from tkinter import *
+import matplotlib.pyplot as plt
 
 # Файл для сохранения данных
 data_file = 'training_log.json'
@@ -82,10 +83,8 @@ class TrainingLogApp:
         with open(data_file, 'r', encoding='utf-8') as file:
             # Загружаем данные из файла в словарь
             data = json.load(file)
-            # print(data)
         for i in data:
             i.keys()
-            # print(i['exercise'])
             values_list.append(i['exercise'])
         values_list_set = set(values_list)
         values_list_set = ["Без сортировки"] + list(values_list_set)
@@ -100,12 +99,8 @@ class TrainingLogApp:
 
     def view_records1(self):
         data = load_data()
-
-
         records_window = Toplevel(self.root)
         records_window.title("Записи тренировок")
-
-
         self.tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
         self.tree.heading('Дата', text="Дата")
         self.tree.heading('Упражнение', text="Упражнение")
@@ -127,9 +122,16 @@ class TrainingLogApp:
             dt2 = datetime.strptime('2024-12-30 00:00:00', '%Y-%m-%d %H:%M:%S')
 
         for entry in data:
-            dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
-            if dt3 > dt1 and dt3 < dt2:
-                self.tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+            if self.value_inside.get() == 'Без сортировки':
+                dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
+                if dt3 > dt1 and dt3 < dt2:
+                    self.tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+            else:
+                if entry['exercise'] == self.value_inside.get():
+                    dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
+                    if dt3 > dt1 and dt3 < dt2:
+                        self.tree.insert('', tk.END, values=(
+                        entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
         self.tree.grid(row=0, column=0)
 
         self.playerdate = Label(records_window, text="Дата")
@@ -144,7 +146,6 @@ class TrainingLogApp:
 
         self.playerweight = Label(records_window, text="Вес")
         self.playerweight.grid(row=1, column=0, sticky=tk.W, padx=280)
-
         self.playerweight_entry = Entry(records_window)
         self.playerweight_entry.grid(row=2, column=0, sticky=tk.W, padx=240)
 
@@ -155,12 +156,14 @@ class TrainingLogApp:
 
         self.select_button = Button(records_window, text="Выбрать строку", command=self.select_record)
         self.select_button.grid(row=3, column=0, sticky=tk.W, padx=5)
-
         self.edit_button = Button(records_window, text="Сохранить изменения", command=self.update_record)
         self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=120)
 
         self.edit_button = Button(records_window, text="Удалить запись", command=self.delite_record)
         self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=280)
+
+        self.gen_diagram = Button(records_window, text="Диаграмма периода", command=self.general_diagram_period)
+        self.gen_diagram.grid(row=3, column=0, sticky=tk.W, padx=400)
 
     def select_record(self):
         # clear entry boxes
@@ -170,18 +173,13 @@ class TrainingLogApp:
         self.playerrepetitions_entry.delete(0, END)
         # grab record
         selected = self.tree.focus()
-        # if selected:
-            # grab record values
-        values = self.tree.item(selected, 'values')
-            # temp_label.config(text=selected)
 
+        values = self.tree.item(selected, 'values')
         # output to entry boxes
         self.playerdate_entry.insert(0, values[0])
         self.playerexercise_entry.insert(0, values[1])
         self.playerweight_entry.insert(0, values[2])
         self.playerrepetitions_entry.insert(0, values[3])
-
-        # pass
 
     def update_record(self):
         selected = self.tree.focus()
@@ -193,7 +191,6 @@ class TrainingLogApp:
         with open(data_file, 'r', encoding='utf-8') as file:
             # Загружаем данные из файла в словарь
             data = json.load(file)
-
         j = 0
         for i in data:
             if self.playerdate_entry.get() == i['date']:
@@ -203,7 +200,6 @@ class TrainingLogApp:
                     'weight': self.playerweight_entry.get(),
                     'repetitions': self.playerrepetitions_entry.get()
                 })
-
             else:
                 update_list.append({
                     'date': data[j]['date'],
@@ -215,16 +211,13 @@ class TrainingLogApp:
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(update_list, f, indent=4)
 
-
     def delite_record(self):
         selected = self.tree.focus()
         values = self.tree.item(selected, "values")
-        print(values[0])
         delite_list = []
         with open(data_file, 'r', encoding='utf-8') as file:
             # Загружаем данные из файла в словарь
             data = json.load(file)
-            # print(data)
         j = 0
         for i in data:
             delite_list.append({
@@ -248,51 +241,150 @@ class TrainingLogApp:
         self.playerweight_entry.delete(0, END)
         self.playerrepetitions_entry.delete(0, END)
 
-
     def add_entry(self):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         exercise = self.exercise_entry.get()
         try:
-            weight = int(self.weight_entry.get())
+            if int(self.weight_entry.get()) >= 0:
+                weight = int(self.weight_entry.get())
+            else:
+                messagebox.showerror("Ошибка при вводе 'ВЕС'", "Должны быть положительные числа")
         except:
             messagebox.showerror("Ошибка при вводе 'ВЕС'", "Должны быть числа")
         try:
-            repetitions = int(self.repetitions_entry.get())
+            if int(self.repetitions_entry.get()) >= 0:
+                repetitions = int(self.repetitions_entry.get())
+            else:
+                messagebox.showerror("Ошибка при вводе 'ПОВТОРЕНИЯ'", "Должны быть положительные числа")
         except:
-            messagebox.showerror("Ошибка при вводе 'Повторения'", "Должны быть числа")
+            messagebox.showerror("Ошибка при вводе 'ПОВТОРЕНИЯ'", "Должны быть числа")
 
         if not (exercise and weight and repetitions):
             messagebox.showerror("Ошибка", "Все поля должны быть заполнены!")
             return
-
         entry = {
             'date': date,
             'exercise': exercise,
             'weight': weight,
             'repetitions': repetitions
         }
-
         data = load_data()
         data.append(entry)
         save_data(data)
-
         # Очистка полей ввода после добавления
         self.exercise_entry.delete(0, tk.END)
         self.weight_entry.delete(0, tk.END)
         self.repetitions_entry.delete(0, tk.END)
         messagebox.showinfo("Успешно", "Запись успешно добавлена!")
 
+    def general_diagram_period(self):
+        x = []
+        y = []
+        period = []
+        data = load_data()
+        try:
+            dt1 = datetime.strptime(self.beginning_period_value.get(), '%Y-%m-%d %H:%M:%S')
+            dt2 = datetime.strptime(self.end_period_value.get(), '%Y-%m-%d %H:%M:%S')
+        except:
+            # messagebox.showinfo("Так не пойдет!!!", ' Файл должен быть формата\n %Y-%m-%d %H:%M:%S '
+            #                                         'по умолчанию:\n Начало периода: 2020-10-28 00:00:00'
+            #                                         '\n Окончание периода: 2024-12-30 00:00:00')
+            dt1 = datetime.strptime('2020-10-28 00:00:00', '%Y-%m-%d %H:%M:%S')
+            dt2 = datetime.strptime('2024-12-30 00:00:00', '%Y-%m-%d %H:%M:%S')
+        for entry in data:
+            if self.value_inside.get() == 'Без сортировки':
+                dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
+                if dt3 > dt1 and dt3 < dt2:
+                    self.tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+                    x.append(entry['exercise'])
+                    y.append(int(entry['weight']) * int(entry['repetitions']))
+                    period.append(entry['date'])
+            else:
+                if entry['exercise'] == self.value_inside.get():
+                    dt3 = datetime.strptime(entry['date'], '%Y-%m-%d %H:%M:%S')
+                    if dt3 > dt1 and dt3 < dt2:
+                        self.tree.insert('', tk.END, values=(entry['date'], entry['exercise'],
+                                                             entry['weight'], entry['repetitions']))
+                        x.append(entry['date'])
+                        y.append(int(entry['weight']) * int(entry['repetitions']))
+                        period.append(entry['date'])
+        self.tree.grid(row=0, column=0)
+        if self.value_inside.get() == 'Без сортировки':
+            plt.figure(figsize=(10, 6))
+            plt.bar(x, y)
+            plt.xlabel(f'Период от {min(period)} до {max(period)}')
+            plt.ylabel('Суммарная масса поднятого веса, кг')
+            plt.title('Диаграмма суммы поднятого веса')
+            vertical_labels = ['\n'.join(wrap(label, 200)) for label in x]
+            # Добавляем подписи оси x вертикальными словами
+            plt.xticks(x, vertical_labels, rotation=90)
+            plt.tight_layout()
+            plt.show()
+        else:
+            # if entry['exercise'] == self.value_inside.get():
+            plt.figure(figsize=(10, 6))
+            plt.bar(x, y)
+            plt.xlabel(f'Период от {min(period)} до {max(period)}')
+            plt.ylabel('Суммарная масса поднятого веса, кг')
+            plt.title(f'Диаграмма суммы поднятого веса при упражнении "{self.value_inside.get()}"')
+            vertical_labels = ['\n'.join(wrap(label, 200)) for label in x]
+            # Добавляем подписи оси x вертикальными словами
+            plt.xticks(x, vertical_labels, rotation=90)
+            plt.tight_layout()
+            plt.show()
+
+    def general_diagram(self):
+        x = []
+        y = []
+        period = []
+        for entry in self.data:
+            if self.value_inside.get() == 'Без сортировки':
+                self.tree.insert('', tk.END,
+                                 values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+                x.append(entry['exercise'])
+                y.append(int(entry['weight']) * int(entry['repetitions']))
+                period.append(entry['date'])
+            else:
+                if entry['exercise'] == self.value_inside.get():
+                    x.append(entry['date'])
+                    y.append(int(entry['weight']) * int(entry['repetitions']))
+                    period.append(entry['date'])
+                    self.tree.insert('', tk.END,
+                                     values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
+        self.tree.grid(row=0, column=0)
+        if self.value_inside.get() == 'Без сортировки':
+            plt.figure(figsize=(10, 6))
+            plt.bar(x, y)
+            plt.xlabel(f'Период от {min(period)} до {max(period)}')
+            plt.ylabel('Суммарная масса поднятого веса, кг')
+            plt.title('Диаграмма суммы поднятого веса')
+            vertical_labels = ['\n'.join(wrap(label, 200)) for label in x]
+            # Добавляем подписи оси x вертикальными словами
+            plt.xticks(x, vertical_labels, rotation=90)
+            plt.tight_layout()
+            plt.show()
+        else:
+            # if entry['exercise'] == self.value_inside.get():
+            plt.figure(figsize=(10, 6))
+            plt.bar(x, y)
+            plt.xlabel(f'Период от {min(period)} до {max(period)}')
+            plt.ylabel('Суммарная масса поднятого веса, кг')
+            plt.title(f'Диаграмма суммы поднятого веса при упражнении "{self.value_inside.get()}"')
+            vertical_labels = ['\n'.join(wrap(label, 200)) for label in x]
+            # Добавляем подписи оси x вертикальными словами
+            plt.xticks(x, vertical_labels, rotation=90)
+            plt.tight_layout()
+            plt.show()
+
     def view_records(self):
         self.data = load_data()
         records_window = Toplevel(self.root)
         records_window.title("Записи тренировок")
-
         self.tree = ttk.Treeview(records_window, columns=("Дата", "Упражнение", "Вес", "Повторения"), show="headings")
         self.tree.heading('Дата', text="Дата")
         self.tree.heading('Упражнение', text="Упражнение")
         self.tree.heading('Вес', text="Вес")
         self.tree.heading('Повторения', text="Повторения")
-
         for entry in self.data:
             if self.value_inside.get() == 'Без сортировки':
                 self.tree.insert('', tk.END, values=(entry['date'], entry['exercise'], entry['weight'], entry['repetitions']))
@@ -318,7 +410,6 @@ class TrainingLogApp:
 
         self.playerweight = Label(records_window, text="Вес")
         self.playerweight.grid(row=1, column=0, sticky=tk.W, padx=280)
-
         self.playerweight_entry = Entry(records_window)
         self.playerweight_entry.grid(row=2, column=0, sticky=tk.W, padx=240)
 
@@ -331,10 +422,13 @@ class TrainingLogApp:
         self.select_button.grid(row=3, column=0, sticky=tk.W, padx=5)
 
         self.edit_button = Button(records_window, text="Сохранить изменения", command=self.update_record)
-        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=120)
+        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=115)
 
         self.edit_button = Button(records_window, text="Удалить запись", command=self.delite_record)
-        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=280)
+        self.edit_button.grid(row=3, column=0, sticky=tk.W, padx=260)
+
+        self.gen_diagram = Button(records_window, text="Диаграмма", command=self.general_diagram)
+        self.gen_diagram.grid(row=3, column=0, sticky=tk.W, padx=370)
 
     def importing_csv_file(self):
         file_path = filedialog.askopenfilename(
@@ -354,8 +448,6 @@ class TrainingLogApp:
         with open('training_log.json', 'w', encoding='utf-8') as json_file:
             json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
-
-
     def save_csv_file(self):
         filename = filedialog.asksaveasfilename(filetypes=[('CSV', '*.csv')])
         with open('training_log.json', 'r', encoding='utf-8') as json_file:
@@ -369,7 +461,6 @@ class TrainingLogApp:
             for item in data:
                 writer.writerow(item)
         messagebox.showinfo("Успешно", f"Создан файл - {filename}")
-
 
 def main():
     root = tk.Tk()
