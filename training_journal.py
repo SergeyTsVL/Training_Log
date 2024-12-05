@@ -30,6 +30,10 @@ class TrainingLogApp:
         self.create_widgets()
 
     def create_widgets(self):
+        """
+        Основная панель кнопок и ввода данных.
+        :return:
+        """
         # Виджеты для ввода данных
         self.exercise_label = ttk.Label(self.root, text="Упражнение:")
         self.exercise_label.grid(column=0, row=0, sticky=tk.W, padx=5, pady=5)
@@ -98,6 +102,15 @@ class TrainingLogApp:
         self.specific_exercise.grid(column=1, row=7, columnspan=1)
 
     def view_records1(self):
+        """
+        Метод при нажатии кнопки "Вывести период" при котором выводится информация за указанный период в отдельном окне.
+        При этом можно не указывать период, по умолчанию выведется период с '2020-10-28 00:00:00' по
+        '2024-12-30 00:00:00'. В новом окне добавлены надписи "Дата", "Упражнение", "Вес", "Повторения", которые
+        подписывают поля выделенных надписей для редактирования. Кнопки "Выбрать строку", "Сохранить изменения",
+        "Удалить запись" производят соответствующие операции над выбранными строками. Кнопка "Диаграмма периода" выводит
+        диаграмму значений таблицы.
+        :return:
+        """
         data = load_data()
         records_window = Toplevel(self.root)
         records_window.title("Записи тренировок")
@@ -166,27 +179,32 @@ class TrainingLogApp:
         self.gen_diagram.grid(row=3, column=0, sticky=tk.W, padx=400)
 
     def select_record(self):
-        # clear entry boxes
+        """
+        Метод очищает поля для редактирования, вставляет в поля для редактированя выделенные строки.
+        :return:
+        """
         self.playerdate_entry.delete(0, END)
         self.playerexercise_entry.delete(0, END)
         self.playerweight_entry.delete(0, END)
         self.playerrepetitions_entry.delete(0, END)
-        # grab record
-        selected = self.tree.focus()
 
+        selected = self.tree.focus()
         values = self.tree.item(selected, 'values')
-        # output to entry boxes
+
         self.playerdate_entry.insert(0, values[0])
         self.playerexercise_entry.insert(0, values[1])
         self.playerweight_entry.insert(0, values[2])
         self.playerrepetitions_entry.insert(0, values[3])
 
     def update_record(self):
+        """
+        Метод редактирует строки из всплывающего окна и в 'training_log.json' файле.
+        :return:
+        """
         selected = self.tree.focus()
         values_record = self.tree.item(selected, text="",
                                        values=(self.playerdate_entry.get(), self.playerexercise_entry.get(),
                                                self.playerweight_entry.get(), self.playerrepetitions_entry.get()))
-        # save new data_file
         update_list = []
         with open(data_file, 'r', encoding='utf-8') as file:
             # Загружаем данные из файла в словарь
@@ -212,6 +230,10 @@ class TrainingLogApp:
             json.dump(update_list, f, indent=4)
 
     def delite_record(self):
+        """
+        Метод удаляет строки из всплывающего окна и из 'training_log.json' файла.
+        :return:
+        """
         selected = self.tree.focus()
         values = self.tree.item(selected, "values")
         delite_list = []
@@ -227,9 +249,7 @@ class TrainingLogApp:
                 'repetitions': data[j]['repetitions']
             })
             if values[0] == i['date']:
-                print('1111111111111')
                 del delite_list[j]
-                print('***********')
             j += 1
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(delite_list, f, indent=4)
@@ -242,6 +262,11 @@ class TrainingLogApp:
         self.playerrepetitions_entry.delete(0, END)
 
     def add_entry(self):
+        """
+        Метод производит добавление записей из начального окна в 'training_log.json' файл, при этом проверяет
+        корректность вводимых данных.
+        :return:
+        """
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         exercise = self.exercise_entry.get()
         try:
@@ -278,6 +303,11 @@ class TrainingLogApp:
         messagebox.showinfo("Успешно", "Запись успешно добавлена!")
 
     def general_diagram_period(self):
+        """
+        Метод генерирует диаграмму из значений в таблице всплывающего окна при выводе значений за период.
+        График в стиля "Бар".
+        :return:
+        """
         x = []
         y = []
         period = []
@@ -286,9 +316,6 @@ class TrainingLogApp:
             dt1 = datetime.strptime(self.beginning_period_value.get(), '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime(self.end_period_value.get(), '%Y-%m-%d %H:%M:%S')
         except:
-            # messagebox.showinfo("Так не пойдет!!!", ' Файл должен быть формата\n %Y-%m-%d %H:%M:%S '
-            #                                         'по умолчанию:\n Начало периода: 2020-10-28 00:00:00'
-            #                                         '\n Окончание периода: 2024-12-30 00:00:00')
             dt1 = datetime.strptime('2020-10-28 00:00:00', '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime('2024-12-30 00:00:00', '%Y-%m-%d %H:%M:%S')
         for entry in data:
@@ -321,7 +348,6 @@ class TrainingLogApp:
             plt.tight_layout()
             plt.show()
         else:
-            # if entry['exercise'] == self.value_inside.get():
             plt.figure(figsize=(10, 6))
             plt.bar(x, y)
             plt.xlabel(f'Период от {min(period)} до {max(period)}')
@@ -334,6 +360,10 @@ class TrainingLogApp:
             plt.show()
 
     def general_diagram(self):
+        """
+        Метод генерирует диаграмму из значений в таблице всплывающего окна. График в стиля "Бар".
+        :return:
+        """
         x = []
         y = []
         period = []
@@ -377,6 +407,14 @@ class TrainingLogApp:
             plt.show()
 
     def view_records(self):
+        """
+        Метод при нажатии кнопки "Просмотреть записи" при котором выводится информация dct[ pfgbctq в отдельном окне.
+        В новом окне добавлены надписи "Дата", "Упражнение", "Вес", "Повторения", которые
+        подписывают поля выделенных надписей для редактирования. Кнопки "Выбрать строку", "Сохранить изменения",
+        "Удалить запись" производят соответствующие операции над выбранными строками. Кнопка "Диаграмма периода" выводит
+        диаграмму значений таблицы.
+        :return:
+        """
         self.data = load_data()
         records_window = Toplevel(self.root)
         records_window.title("Записи тренировок")
@@ -431,6 +469,11 @@ class TrainingLogApp:
         self.gen_diagram.grid(row=3, column=0, sticky=tk.W, padx=370)
 
     def importing_csv_file(self):
+        """
+        Производит згрузку стороннего файла формата .csv из указанного места в памяти ПК, при исходный файл не
+        обрабатывается при загрузке.
+        :return:
+        """
         file_path = filedialog.askopenfilename(
             title="Выберите файл для импорта",
             filetypes=[('All Files', '*.*'), ("CSV files", "*.csv"), ("JSON files", "*.json")]
@@ -449,6 +492,11 @@ class TrainingLogApp:
             json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
     def save_csv_file(self):
+        """
+        Метод производит сохранение из файла 'training_log.json' в формат .csv в указанное место на ПК и с заданным
+        именем файла.
+        :return:
+        """
         filename = filedialog.asksaveasfilename(filetypes=[('CSV', '*.csv')])
         with open('training_log.json', 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
